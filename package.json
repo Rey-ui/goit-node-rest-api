@@ -1,8 +1,8 @@
 {
-  "name": "goit-node-cli",
+  "name": "goit-node-rest-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,6 +10,11 @@
   "author": "ANDRIY <a.qwerty0444@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "commander": "^12.0.0"
+    "commander": "^12.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "joi": "^17.13.1",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.0"
   }
 }

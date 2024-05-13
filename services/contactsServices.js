@@ -63,10 +63,26 @@ async function addContact({ name, email, phone }) {
 
   return newСontact;
 }
+async function updateContact(id, contact) {
+  const contacts = await readContacts();
 
+  const index = contacts.findIndex((contact) => contact.id === id);
+
+  if (index === -1) {
+    return null;
+  }
+
+  const updateContact = { id, ...contact };
+  contacts[index] = updateContact;
+
+  await writeContacts(contacts);
+
+  return updateContact;
+}
 export default {
   listContacts,
   getContactById,
   removeContact,
   addContact,
+  updateContact,
 };
