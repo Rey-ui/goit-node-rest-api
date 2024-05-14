@@ -12,7 +12,7 @@ export const getOneContact = async (req, res) => {
   if (contactId) {
     return res.status(200).json(contactId);
   } else {
-    return res.send(HttpError(404));
+    return res.send({ message: HttpError(404) });
   }
 };
 
@@ -23,7 +23,7 @@ export const deleteContact = async (req, res) => {
   if (id) {
     return res.status(200).json(deleteContact);
   } else {
-    return res.send(HttpError(404));
+    return res.send({ message: HttpError(404) });
   }
 };
 
@@ -37,9 +37,7 @@ export const createContact = async (req, res) => {
     abortEarly: false,
   });
   if (error) {
-    return res
-      .status(400)
-      .send(error.details.map((error) => error.message).join(", "));
+    return res.status(400).json({ message: error.message });
   }
   const addContact = await contactsService.addContact(req.body);
   return res.status(201).send(addContact);
