@@ -1,9 +1,11 @@
 import contactsService from "../services/contactsServices.js";
 import HttpError from "../helpers/httpError.js";
-import { createContactSchema } from "../schemas/contacsSchemas.js";
+import {
+  createContactSchema,
+  updateContactSchema,
+} from "../schemas/contacsSchemas.js";
 export const getAllContacts = async (req, res) => {
   const contacts = await contactsService.listContacts();
-  console.log(contacts);
   return res.status(200).json(contacts);
 };
 
@@ -17,10 +19,10 @@ export const getOneContact = async (req, res) => {
 };
 
 export const deleteContact = async (req, res) => {
-  const { id } = req.params;
+  //const { id } = req.params;
 
   const deleteContact = await contactsService.removeContact(req.params.id);
-  if (id) {
+  if (deleteContact) {
     return res.status(200).json(deleteContact);
   } else {
     return res.send({ message: HttpError(404) });
@@ -49,7 +51,7 @@ export const updateContact = async (req, res) => {
     email: req.body.email,
     phone: req.body.phone,
   };
-  const { error } = createContactSchema.validate(contact, {
+  const { error } = updateContactSchema.validate(contact, {
     abortEarly: false,
   });
   if (error) {
