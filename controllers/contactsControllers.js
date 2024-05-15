@@ -1,5 +1,5 @@
 import contactsService from "../services/contactsServices.js";
-import HttpError from "../helpers/httpError.js";
+//import HttpError from "../helpers/httpError.js";
 import {
   createContactSchema,
   updateContactSchema,
@@ -14,7 +14,7 @@ export const getOneContact = async (req, res) => {
   if (contactId) {
     return res.status(200).json(contactId);
   } else {
-    return res.send({ message: HttpError(404) });
+    return res.status(404).json({ message: "Not found" });
   }
 };
 
@@ -25,7 +25,7 @@ export const deleteContact = async (req, res) => {
   if (deleteContact) {
     return res.status(200).json(deleteContact);
   } else {
-    return res.send({ message: HttpError(404) });
+    return res.status(404).json({ message: "Not found" });
   }
 };
 
