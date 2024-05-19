@@ -1,13 +1,13 @@
 import * as fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
+import Contact from "../schemas/contacsSchemas.js";
 
 const contactsPath = path.resolve("db", "contacts.json");
 
 async function readContacts() {
-  const data = await fs.readFile(contactsPath, { encoding: "utf-8" });
-
-  return JSON.parse(data);
+  const contacts = await Contact.find();
+  return contacts;
 }
 
 async function writeContacts(contacts) {
@@ -20,10 +20,7 @@ async function listContacts() {
 }
 
 async function getContactById(contactId) {
-  const contacts = await readContacts();
-
-  const contact = contacts.find((contact) => contact.id === contactId);
-
+  const contact = await Contact.findById(contactId);
   if (typeof contact === "undefined") {
     return null;
   }
@@ -32,52 +29,36 @@ async function getContactById(contactId) {
 }
 
 async function removeContact(contactId) {
-  let contacts = await readContacts();
-
-  const index = contacts.findIndex((contact) => contact.id === contactId);
-
+  const index = await Contact.findByIdAndDelete(contactId);
   if (index === -1) {
     return null;
   }
-
-  const removedContact = contacts[index];
-  contacts = contacts.filter((contact) => contact.id !== contactId);
-  await writeContacts(contacts);
-
-  return removedContact;
+  return index;
 }
 
-async function addContact({ name, email, phone }) {
-  const contacts = await readContacts();
+async function addContact(contact) {
+  const contacts = await Contact.create(contact);
 
-  const newСontact = {
-    id: crypto.randomUUID(),
-    name,
-    email,
-    phone,
-  };
-
-  contacts.push(newСontact);
-
-  await writeContacts(contacts);
-
-  return newСontact;
+  return contacts;
 }
 async function updateContact(id, contact) {
-  const contacts = await readContacts();
-
-  const index = contacts.findIndex((contact) => contact.id === id);
-
-  if (index === -1) {
+  const contacts = await Contact.findByIdAndUpdate(id, contact);
+  if (contacts === -1) {
+    return null;
+  }
+  return contacts;
+}
+async function updateStatusContact(contactId, update) {
+  const existingContact = await Contact.findById(contactId);
+  if (!existingContact) {
     return null;
   }
 
-  const updateContact = { id, ...contact };
-  contacts[index] = updateContact;
+  const contact = await Contact.findByIdAndUpdate(contactId, update, {
+    new: true,
+  });
 
-  await writeContacts(contacts);
-
-  return updateContact;
+  return contact;
 }
 export default {
   listContacts,
@@ -85,4 +66,5 @@ export default {
   removeContact,
   addContact,
   updateContact,
+  updateStatusContact,
 };
