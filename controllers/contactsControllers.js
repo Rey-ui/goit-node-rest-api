@@ -1,5 +1,5 @@
 import contactsService from "../services/contactsServices.js";
-import HttpError from "../helpers/httpError.js";
+//import HttpError from "../helpers/httpError.js";
 import {
   createContactSchema,
   updateContactSchema,
@@ -13,7 +13,6 @@ export const getAllContacts = async (req, res, next) => {
     next(error);
   }
 };
-
 export const getOneContact = async (req, res, next) => {
   try {
     const contactId = await contactsService.getContactById(req.params.id);
