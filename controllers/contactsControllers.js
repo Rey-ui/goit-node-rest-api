@@ -1,5 +1,5 @@
 import contactsService from "../services/contactsServices.js";
-import HttpError from "../helpers/httpError.js";
+//import HttpError from "../helpers/httpError.js";
 import mongoose from "mongoose";
 import {
   createContactSchema,
@@ -14,7 +14,6 @@ export const getAllContacts = async (req, res, next) => {
     next(error);
   }
 };
-
 export const getOneContact = async (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(404).json({ message: "Not found" });
