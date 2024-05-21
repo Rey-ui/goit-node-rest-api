@@ -1,5 +1,6 @@
 import contactsService from "../services/contactsServices.js";
 //import HttpError from "../helpers/httpError.js";
+import mongoose from "mongoose";
 import {
   createContactSchema,
   updateContactSchema,
@@ -14,25 +15,30 @@ export const getAllContacts = async (req, res, next) => {
   }
 };
 export const getOneContact = async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ message: "Not found" });
+  }
   try {
     const contactId = await contactsService.getContactById(req.params.id);
-    if (contactId) {
-      return res.status(200).json(contactId);
-    } else {
-      return res.send({ message: HttpError(404) });
+    if (!contactId) {
+      return res.status(404).json({ message: "Not found" });
     }
+    return res.status(200).json(contactId);
   } catch (error) {
     next(error);
   }
 };
 
 export const deleteContact = async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ message: "Not found" });
+  }
   try {
     const deleteContact = await contactsService.removeContact(req.params.id);
     if (deleteContact) {
       return res.status(200).json(deleteContact);
     } else {
-      return res.send({ message: HttpError(404) });
+      return res.status(404).json({ message: "Not found" });
     }
   } catch (error) {
     next(error);
@@ -67,6 +73,9 @@ export const updateContact = async (req, res, next) => {
     phone: req.body.phone,
     favorite: req.body.favorite,
   };
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ message: "Not found" });
+  }
   const { error } = updateContactSchema.validate(contact, {
     abortEarly: false,
   });
@@ -89,6 +98,9 @@ export const updateContact = async (req, res, next) => {
 };
 
 export const updateContactFavorite = async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ message: "Not found" });
+  }
   const contact = {
     favorite: req.body.favorite,
   };
