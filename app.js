@@ -4,12 +4,17 @@ import contactsRouter from "./routes/contactsRouter.js";
 import morgan from "morgan";
 import "./db.js";
 import cors from "cors";
-
+import usersRouter from "./routes/usersRouter.js";
+import auth from "./middleware/auth.js";
 const app = express();
+
 app.use(morgan("tiny"));
+
 app.use(cors());
+
 app.use(express.json());
-app.use("/api/contacts", contactsRouter);
+app.use("/api", usersRouter);
+app.use("/api/contacts", auth, contactsRouter);
 
 // Handle 404 Error
 app.use((req, res, next) => {

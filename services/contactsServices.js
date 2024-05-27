@@ -1,21 +1,21 @@
-import * as fs from "node:fs/promises";
-import path from "node:path";
-import crypto from "node:crypto";
-import Contact from "../schemas/contacsSchemas.js";
+//import * as fs from "node:fs/promises";
+//import path from "node:path";
+//import crypto from "node:crypto";
+import Contact from "../models/contacsSchemas.js";
 
-const contactsPath = path.resolve("db", "contacts.json");
+//const contactsPath = path.resolve("db", "contacts.json");
 
-async function readContacts() {
-  const contacts = await Contact.find();
-  return contacts;
-}
+// async function readContacts() {
+//   const contacts = await Contact.find();
+//   return contacts;
+// }
 
-async function writeContacts(contacts) {
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, undefined, 2));
-}
+// async function writeContacts(contacts) {
+//   await fs.writeFile(contactsPath, JSON.stringify(contacts, undefined, 2));
+// }
 
 async function listContacts() {
-  const contacts = await readContacts();
+  const contacts = await Contact.find();
   return contacts;
 }
 
