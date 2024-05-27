@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+
+const { Schema } = mongoose;
 const contactsSchema = new mongoose.Schema(
   {
     name: {
@@ -14,6 +16,10 @@ const contactsSchema = new mongoose.Schema(
     favorite: {
       type: Boolean,
       default: false,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
     },
   },
   {
