@@ -6,8 +6,9 @@ import "./db.js";
 import cors from "cors";
 import usersRouter from "./routes/usersRouter.js";
 import auth from "./middleware/auth.js";
+import path from "node:path";
 const app = express();
-
+app.use("/avatars", express.static(path.resolve("public/avatars")));
 app.use(morgan("tiny"));
 
 app.use(cors());
