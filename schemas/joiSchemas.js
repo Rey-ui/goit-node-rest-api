@@ -24,3 +24,6 @@ export const loginSchema = Joi.object({
   email: Joi.string().required(),
   password: Joi.string().required(),
 });
+export const changeAvatarSchema = Joi.object({
+  avatarURL: Joi.string().required(),
+});
