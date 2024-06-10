@@ -1,11 +1,18 @@
 import bcrypt from "bcrypt";
+import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
 import User from "../models/users.js";
 import gravatar from "gravatar";
 import path from "node:path";
-import { loginSchema, registerSchema } from "../schemas/joiSchemas.js";
+import {
+  loginSchema,
+  registerSchema,
+  resendVerification,
+} from "../schemas/joiSchemas.js";
 import Jimp from "jimp";
 import * as fs from "node:fs/promises";
+import mail from "../mail.js";
+
 async function register(req, res, next) {
   try {
     const { email, password } = req.body;
@@ -19,18 +26,29 @@ async function register(req, res, next) {
       return res.status(400).json({ message: error.message });
     }
     const user = await User.findOne({ email });
-
     if (user !== null) {
       return res.status(409).send({ message: "User already registered" });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomUUID();
+
+    mail.sendMail({
+      to: email,
+      from: "a.qwerty0444@gmail.com",
+      subject: "Welcome",
+      html: `To confirm you email please click on <a href="http://localhost:3000/api/users/verify/${verificationToken}">link</a>`,
+      text: `To confirm you email please open the link http://localhost:3000/api/users/verify/${verificationToken}`,
+    });
+
     const avatarURL = gravatar.url(email, { s: "200", r: "pg", d: "mm" });
     const reguser = await User.create({
       email,
       password: passwordHash,
       avatarURL,
+      verificationToken,
     });
+    console.log(req.body.verify);
     console.log(reguser);
     res.status(201).send({ message: "Registration successfully!" });
   } catch (error) {
@@ -67,7 +85,9 @@ async function login(req, res, next) {
         .status(401)
         .send({ message: "Email or password is incorrect" });
     }
-
+    if (user.verified === false) {
+      return res.status(401).send({ message: "Please verify your email" });
+    }
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET,
@@ -142,5 +162,69 @@ async function changeAvatar(req, res, next) {
     next(error);
   }
 }
+async function verifyEmail(req, res, next) {
+  try {
+    const { verificationToken } = req.params;
 
-export default { register, login, logout, currentUser, changeAvatar };
+    const user = await User.findOne({ verificationToken: verificationToken });
+
+    if (user === null) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    await User.findByIdAndUpdate(user._id, {
+      verify: true,
+      verificationToken: null,
+    });
+
+    res.send({ message: "Email confirm successfully!" });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function resendVerificationEmail(req, res, next) {
+  try {
+    const { email } = req.body;
+    const { error } = resendVerification.validate(
+      { email },
+      {
+        abortEarly: false,
+      }
+    );
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (user.verify) {
+      return res
+        .status(400)
+        .json({ message: "Verification has already been passed" });
+    }
+
+    const verificationToken = crypto.randomUUID();
+
+    mail.sendMail({
+      to: email,
+      from: "a.qwerty0444@gmail.com",
+      subject: "Welcome",
+      html: `To confirm you email please click on <a href="http://localhost:3000/api/users/verify/${verificationToken}">link</a>`,
+      text: `To confirm you email please open the link http://localhost:3000/api/users/verify/${verificationToken}`,
+    });
+    res.status(200).json({ message: "Verification email sent" });
+  } catch (error) {
+    next(error);
+  }
+}
+export default {
+  register,
+  login,
+  logout,
+  currentUser,
+  changeAvatar,
+  verifyEmail,
+  resendVerificationEmail,
+};
