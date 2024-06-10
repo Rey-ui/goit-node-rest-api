@@ -15,5 +15,13 @@ usersRouter.patch(
   upload.single("avatar"),
   usersControllers.changeAvatar
 );
-
+usersRouter.get(
+  "/users/verify/:verificationToken",
+  usersControllers.verifyEmail
+);
+usersRouter.post(
+  "/users/verify",
+  jsonParser,
+  usersControllers.resendVerificationEmail
+);
 export default usersRouter;
