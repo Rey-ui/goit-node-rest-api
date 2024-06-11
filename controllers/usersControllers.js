@@ -136,9 +136,23 @@ async function currentUser(req, res, next) {
 }
 async function changeAvatar(req, res, next) {
   try {
+    if (!req.file) {
+      return res.status(400).json({ message: "File not provided" });
+    }
     const newPath = path.resolve("public", "avatars", req.file.filename);
     const tmpPath = req.file.path;
+    const avatarURL = path.join("/avatars", req.file.filename);
 
+    const { error } = changeAvatarSchema.validate(
+      { avatarURL },
+      {
+        abortEarly: false,
+      }
+    );
+    if (error) {
+      await fs.unlink(tmpPath);
+      return res.status(400).json({ message: error.message });
+    }
     const image = await Jimp.read(tmpPath);
 
     await image.resize(250, 250).writeAsync(newPath);
@@ -146,7 +160,7 @@ async function changeAvatar(req, res, next) {
 
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { avatarURL: req.file.filename },
+      { avatarURL: `/avatars/${req.file.filename}` },
       { new: true }
     );
     if (!user) {
