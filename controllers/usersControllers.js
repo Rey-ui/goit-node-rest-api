@@ -35,10 +35,10 @@ async function register(req, res, next) {
 
     mail.sendMail({
       to: email,
-      from: "a.qwerty0444@gmail.com",
+      from: process.env.EMAIL,
       subject: "Welcome",
-      html: `To confirm you email please click on <a href="http://localhost:3000/api/users/verify/${verificationToken}">link</a>`,
-      text: `To confirm you email please open the link http://localhost:3000/api/users/verify/${verificationToken}`,
+      html: `To confirm you email please click on <a href="${process.env.LOCAL_HOST}/api/users/verify/${verificationToken}">link</a>`,
+      text: `To confirm you email please open the link ${process.env.LOCAL_HOST}/api/users/verify/${verificationToken}`,
     });
 
     const avatarURL = gravatar.url(email, { s: "200", r: "pg", d: "mm" });
@@ -48,8 +48,6 @@ async function register(req, res, next) {
       avatarURL,
       verificationToken,
     });
-    console.log(req.body.verify);
-    console.log(reguser);
     res.status(201).send({ message: "Registration successfully!" });
   } catch (error) {
     next(error);
@@ -206,13 +204,13 @@ async function resendVerificationEmail(req, res, next) {
     }
 
     const verificationToken = crypto.randomUUID();
-
+    await User.findByIdAndUpdate(user._id, { verificationToken });
     mail.sendMail({
       to: email,
-      from: "a.qwerty0444@gmail.com",
+      from: process.env.EMAIL,
       subject: "Welcome",
-      html: `To confirm you email please click on <a href="http://localhost:3000/api/users/verify/${verificationToken}">link</a>`,
-      text: `To confirm you email please open the link http://localhost:3000/api/users/verify/${verificationToken}`,
+      html: `To confirm you email please click on <a href="${process.env.LOCAL_HOST}/api/users/verify/${verificationToken}">link</a>`,
+      text: `To confirm you email please open the link ${process.env.LOCAL_HOST}/api/users/verify/${verificationToken}`,
     });
     res.status(200).json({ message: "Verification email sent" });
   } catch (error) {
